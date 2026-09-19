@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#111111">
+  <title>AutoFlow Studio</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="mark"></div>
+      <div>
+        <h1>AutoFlow Studio</h1>
+        <p>Build reusable browser automations without an AI API.</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="newWorkflow">New workflow</button>
+      <button id="importWorkflow">Import JSON</button>
+      <input id="importFile" type="file" accept=".json,application/json" hidden>
+      <button id="exportWorkflow">Export JSON</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <aside class="sidebar panel">
+      <div class="section-title">
+        <h2>Workflows</h2>
+        <button id="addWorkflow" class="icon-btn" title="Add workflow">+</button>
+      </div>
+      <div id="workflowList"></div>
+      <div class="sidebar-footer">
+        <button id="loadSample">Load sample</button>
+        <button id="clearAll" class="danger">Clear local data</button>
+      </div>
+    </aside>
+
+    <section class="main">
+      <div class="panel workflow-header">
+        <div>
+          <label for="workflowName">Workflow name</label>
+          <input id="workflowName" placeholder="My automation">
+        </div>
+        <div class="header-buttons">
+          <button id="validateWorkflow">Dry run / validate</button>
+          <button id="saveWorkflow" class="primary">Save</button>
+        </div>
+      </div>
+
+      <div class="tabs panel">
+        <button class="tab active" data-tab="builder">Builder</button>
+        <button class="tab" data-tab="data">Batch data</button>
+        <button class="tab" data-tab="code">Runner code</button>
+        <button class="tab" data-tab="help">How it works</button>
+      </div>
+
+      <section id="builder" class="tabpane">
+        <div class="panel">
+          <div class="section-title">
+            <div>
+              <h2>Workflow steps</h2>
+              <p class="muted">Drag is not required. Use arrows to reorder steps.</p>
+            </div>
+            <div class="toolbar">
+              <button data-add="navigate">+ Navigate</button>
+              <button data-add="click">+ Click</button>
+              <button data-add="type">+ Type</button>
+              <button data-add="select">+ Select</button>
+              <button data-add="waitFor">+ Wait for</button>
+              <button data-add="wait">+ Wait</button>
+              <button data-add="confirm">+ Confirm</button>
+            </div>
+          </div>
+          <div id="steps"></div>
+        </div>
+      </section>
+
+      <section id="data" class="tabpane hidden">
+        <div class="panel">
+          <h2>Batch CSV</h2>
+          <p class="muted">Column headings become variables such as <code>{{url}}</code> and <code>{{article_title}}</code>.</p>
+          <div class="data-actions">
+            <label class="file-btn">
+              Load CSV
+              <input id="csvFile" type="file" accept=".csv,text/csv" hidden>
+            </label>
+            <button id="sampleCsv">Download sample CSV</button>
+            <button id="clearCsv">Clear CSV</button>
+          </div>
+          <div id="csvInfo" class="muted">No CSV loaded.</div>
+          <div id="csvPreview" class="table-wrap"></div>
+        </div>
+
+        <div class="panel">
+          <h2>Global variables</h2>
+          <textarea id="globals" rows="7" spellcheck="false" placeholder='{"site":"Blogger","author":"Example"}'></textarea>
+          <p class="muted">These values are merged with each CSV row. CSV row values win when the same key exists.</p>
+        </div>
+      </section>
+
+      <section id="code" class="tabpane hidden">
+        <div class="panel">
+          <div class="section-title">
+            <div>
+              <h2>Playwright runner</h2>
+              <p class="muted">This is what performs real browser automation outside this web page.</p>
+            </div>
+            <div class="toolbar">
+              <button id="copyCode">Copy</button>
+              <button id="downloadCode">Download .js</button>
+            </div>
+          </div>
+          <pre id="codeOutput"></pre>
+        </div>
+
+        <div class="panel">
+          <h2>Local runner command</h2>
+          <pre>cd runner
+npm install
+npm start</pre>
+          <p class="muted">Then open the web app and export your workflow JSON. The included runner can execute it locally with Playwright.</p>
+        </div>
+      </section>
+
+      <section id="help" class="tabpane hidden">
+        <div class="panel prose">
+          <h2>How AutoFlow works</h2>
+          <p>A normal website cannot safely control arbitrary tabs on other websites. AutoFlow therefore separates the workflow designer from the automation runner.</p>
+          <div class="flow">
+            <span>Web app</span><b>→</b><span>Workflow JSON</span><b>→</b><span>Local Playwright runner</span><b>→</b><span>Target website</span>
+          </div>
+          <h3>Recommended first automation</h3>
+          <p>Record the logic manually in the builder, replace changing values with variables, validate it, then execute it with the local runner.</p>
+          <h3>Safety</h3>
+          <p>Add a <strong>Confirm</strong> step before irreversible actions such as publish, delete, send, purchase, approve, or account changes. Avoid storing passwords in workflow files.</p>
+        </div>
+      </section>
+
+      <div id="validationBox" class="panel validation hidden"></div>
+    </section>
+  </main>
+
+  <dialog id="stepDialog">
+    <form method="dialog">
+      <div class="dialog-head">
+        <h2>Edit step</h2>
+        <button value="cancel" class="icon-btn">×</button>
+      </div>
+      <div id="stepFields"></div>
+      <details>
+        <summary>Advanced JSON</summary>
+        <textarea id="stepJson" rows="12" spellcheck="false"></textarea>
+      </details>
+      <div class="dialog-actions">
+        <button value="cancel">Cancel</button>
+        <button id="applyStep" value="default" class="primary">Apply</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
