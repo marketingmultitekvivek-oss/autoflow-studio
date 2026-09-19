@@ -1,0 +1,9 @@
+{
+  "name": "AutoFlow Studio",
+  "short_name": "AutoFlow",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f5f7",
+  "theme_color": "#111111",
+  "description": "Build reusable browser automation workflows and export Playwright runners."
+}
