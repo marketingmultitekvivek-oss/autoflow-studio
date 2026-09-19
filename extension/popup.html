@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AutoFlow Studio</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <strong>AutoFlow Studio</strong>
+        <span>Recorder</span>
+      </div>
+      <a href="https://marketingmultitekvivek-oss.github.io/autoflow-studio/" target="_blank" rel="noreferrer">Dashboard</a>
+    </header>
+
+    <section class="card">
+      <label for="workflowName">Workflow name</label>
+      <input id="workflowName" value="My browser workflow" maxlength="80">
+
+      <div class="row">
+        <button id="startBtn" class="primary">Start recording</button>
+        <button id="stopBtn">Stop & save</button>
+      </div>
+
+      <p id="recordingStatus" class="status">Not recording.</p>
+    </section>
+
+    <section class="card">
+      <label for="workflowSelect">Saved workflow</label>
+      <select id="workflowSelect"></select>
+
+      <div class="row">
+        <button id="runBtn" class="primary">Run workflow</button>
+        <button id="deleteBtn" class="danger">Delete</button>
+      </div>
+
+      <div id="workflowInfo" class="muted">No saved workflow selected.</div>
+      <ol id="stepList"></ol>
+    </section>
+
+    <section class="card compact">
+      <div class="row">
+        <button id="exportBtn">Export JSON</button>
+        <label class="fileBtn">
+          Import JSON
+          <input id="importFile" type="file" accept=".json,application/json" hidden>
+        </label>
+      </div>
+    </section>
+
+    <div id="message" class="message"></div>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
