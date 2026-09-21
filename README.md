@@ -1287,3 +1287,39 @@ https://marketingmultitekvivek-oss.github.io/autoflow-studio/
 GitHub repository:
 
 https://github.com/marketingmultitekvivek-oss/autoflow-studio
+
+
+---
+
+## Z.AI integration
+
+AutoFlow Studio includes an optional **AI Assist** workflow generator backed by Z.AI.
+
+Architecture:
+
+```text
+AutoFlow Studio on GitHub Pages
+        ↓
+Local bridge on 127.0.0.1:8787
+        ↓
+Z.AI API (GLM-5.3)
+        ↓
+Editable AutoFlow workflow JSON
+        ↓
+Validate / export / Playwright runner
+```
+
+Your Z.AI API key is kept in `zai-bridge/.env` on your computer and is not stored in GitHub Pages.
+
+Setup:
+
+```powershell
+cd zai-bridge
+Copy-Item .env.example .env
+notepad .env
+npm start
+```
+
+Then open **AI Assist** in AutoFlow Studio and click **Test bridge**.
+
+See `zai-bridge/README.md` for details.
