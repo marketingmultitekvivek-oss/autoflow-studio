@@ -4,6 +4,7 @@ const $$ = s => [...document.querySelectorAll(s)];
 const STORAGE_KEY = "autoflow.workflows.v1";
 const DATA_KEY = "autoflow.csv.v1";
 const GLOBAL_KEY = "autoflow.globals.v1";
+const ZAI_BRIDGE_KEY = "autoflow.zaiBridgeUrl.v1";
 
 let workflows = loadJson(STORAGE_KEY, []);
 let currentId = workflows[0]?.id || null;
@@ -292,6 +293,73 @@ function generatePlaywright(){
 }
 function renderCode(){ $("#codeOutput").textContent=generatePlaywright(); }
 
+
+function zaiBridgeUrl(){
+  return ($("#zaiBridgeUrl")?.value || localStorage.getItem(ZAI_BRIDGE_KEY) || "http://127.0.0.1:8787").replace(/\/$/, "");
+}
+
+function setZaiStatus(message, ok=false){
+  const el=$("#zaiStatus");
+  if(!el) return;
+  el.textContent=message;
+  el.style.fontWeight=ok ? "600" : "";
+}
+
+async function testZaiBridge(){
+  const url=zaiBridgeUrl();
+  localStorage.setItem(ZAI_BRIDGE_KEY,url);
+  setZaiStatus("Testing local bridge...");
+  try{
+    const res=await fetch(url+"/health",{method:"GET"});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error||("HTTP "+res.status));
+    setZaiStatus(`Connected to ${data.model||"Z.AI"} through the local bridge.`,true);
+  }catch(err){
+    setZaiStatus("Bridge connection failed: "+err.message);
+  }
+}
+
+async function generateWithZai(){
+  const task=$("#zaiTask")?.value.trim();
+  if(!task){ alert("Describe the automation task first."); return; }
+  const url=zaiBridgeUrl();
+  localStorage.setItem(ZAI_BRIDGE_KEY,url);
+  setZaiStatus("Generating workflow...");
+  if($("#zaiOutput")) $("#zaiOutput").textContent="";
+  try{
+    const res=await fetch(url+"/generate-workflow",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        task,
+        targetSite:$("#zaiTargetSite")?.value.trim()||"",
+        globals:Object.keys(currentGlobals()),
+        csvColumns:csvRows[0]?Object.keys(csvRows[0]):[]
+      })
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error||("HTTP "+res.status));
+    const w=data.workflow;
+    if(!w || !Array.isArray(w.steps)) throw new Error("The bridge did not return a valid workflow.");
+    const imported={
+      ...w,
+      id:uid(),
+      name:w.name||"Z.AI generated workflow",
+      createdAt:Date.now(),
+      updatedAt:Date.now()
+    };
+    workflows.unshift(imported);
+    currentId=imported.id;
+    saveAll();
+    renderWorkflows();
+    renderEditor();
+    if($("#zaiOutput")) $("#zaiOutput").textContent=JSON.stringify(imported,null,2);
+    setZaiStatus(`Generated ${imported.steps.length} editable step(s). Review and validate before running.`,true);
+  }catch(err){
+    setZaiStatus("Generation failed: "+err.message);
+  }
+}
+
 function download(name,text,type="text/plain"){
   const blob=new Blob([text],{type});const url=URL.createObjectURL(blob);
   const a=document.createElement("a");a.href=url;a.download=name;a.click();
@@ -419,6 +487,14 @@ $("#clearAll").addEventListener("click",()=>{
   localStorage.removeItem(STORAGE_KEY);localStorage.removeItem(DATA_KEY);localStorage.removeItem(GLOBAL_KEY);
   workflows=[];csvRows=[];currentId=null;ensureWorkflow();renderWorkflows();renderEditor();
 });
+
+
+if($("#zaiBridgeUrl")){
+  $("#zaiBridgeUrl").value=localStorage.getItem(ZAI_BRIDGE_KEY)||"http://127.0.0.1:8787";
+  $("#zaiBridgeUrl").addEventListener("change",()=>localStorage.setItem(ZAI_BRIDGE_KEY,zaiBridgeUrl()));
+}
+$("#zaiHealth")?.addEventListener("click",testZaiBridge);
+$("#zaiGenerate")?.addEventListener("click",generateWithZai);
 
 $("#globals").value=localStorage.getItem(GLOBAL_KEY)||"";
 ensureWorkflow();renderWorkflows();renderEditor();renderCsv();renderCode();
