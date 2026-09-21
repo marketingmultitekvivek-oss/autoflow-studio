@@ -53,6 +53,7 @@
       <div class="tabs panel">
         <button class="tab active" data-tab="builder">Builder</button>
         <button class="tab" data-tab="data">Batch data</button>
+        <button class="tab" data-tab="ai">AI Assist</button>
         <button class="tab" data-tab="code">Runner code</button>
         <button class="tab" data-tab="help">How it works</button>
       </div>
@@ -98,6 +99,40 @@
           <h2>Global variables</h2>
           <textarea id="globals" rows="7" spellcheck="false" placeholder='{"site":"Blogger","author":"Example"}'></textarea>
           <p class="muted">These values are merged with each CSV row. CSV row values win when the same key exists.</p>
+        </div>
+      </section>
+
+
+      <section id="ai" class="tabpane hidden">
+        <div class="panel prose">
+          <h2>Z.AI workflow assistant</h2>
+          <p>Describe a browser task in plain language. AutoFlow sends the request to a local bridge on your computer, which calls Z.AI and returns editable workflow JSON. Your Z.AI API key stays in the local bridge and is never stored in GitHub Pages.</p>
+
+          <div class="field">
+            <label for="zaiTask">Task</label>
+            <textarea id="zaiTask" rows="6" placeholder="Example: Open my Blogger post editor, fill the title and meta description from variables, preview it, then ask me before publishing."></textarea>
+          </div>
+
+          <div class="field">
+            <label for="zaiTargetSite">Target site or app (optional)</label>
+            <input id="zaiTargetSite" placeholder="Example: Blogger">
+          </div>
+
+          <div class="field">
+            <label for="zaiBridgeUrl">Local bridge URL</label>
+            <input id="zaiBridgeUrl" value="http://127.0.0.1:8787">
+          </div>
+
+          <div class="toolbar">
+            <button id="zaiHealth">Test bridge</button>
+            <button id="zaiGenerate" class="primary">Generate workflow with Z.AI</button>
+          </div>
+
+          <div id="zaiStatus" class="muted">Start the local bridge in <code>zai-bridge/</code>, then test the connection.</div>
+          <pre id="zaiOutput"></pre>
+
+          <h3>Safety</h3>
+          <p>The assistant only generates workflow steps. It does not execute them. AutoFlow keeps manual confirmation for actions such as publish, delete, send, purchase, pay, approve, and other irreversible clicks.</p>
         </div>
       </section>
 
