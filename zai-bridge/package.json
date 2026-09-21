@@ -1,0 +1,13 @@
+{
+  "name": "autoflow-zai-bridge",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Local Z.AI bridge for AutoFlow Studio",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
